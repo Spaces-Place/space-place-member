@@ -10,8 +10,9 @@ from dotenv import load_dotenv
 env_file = '.env.development' if os.getenv('APP_ENV') == 'development' else '.env.production'
 load_dotenv(env_file)
 
+ssm = boto3.client('ssm', region_name='ap-northeast-2')
+
 def get_parameter_from_ssm(name: str) -> str:
-    ssm = boto3.client('ssm')
     try:
         parameter = ssm.get_parameter(Name=name , WithDecryption=True)
     except ssm.exceptions.ParameterNotFound:
@@ -39,26 +40,25 @@ def get_parameter_from_ssm(name: str) -> str:
 
     return key
 
-def get_user_db_name() -> str:
+def get_config_value(name: str) -> str:
     if env_file == '.env.development':
-        return os.getenv('USER_DB_NAME')
-    
-    return get_parameter_from_ssm("USER_DB_NAME")
+        value = os.getenv(name)
+        if value is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"{name} environment variable is missing."
+            )
+        return value
+    return get_parameter_from_ssm(name)
+
+def get_user_db_name() -> str:
+    return get_config_value("USER_DB_NAME")
 
 def get_user_db_host() -> str:
-    if env_file == '.env.development':
-        return os.getenv('USER_DB_HOST')
-    
-    return get_parameter_from_ssm("USER_DB_HOST")
+    return get_config_value("USER_DB_HOST")
 
 def get_user_db_password() -> str:
-    if env_file == '.env.development':
-        return os.getenv('USER_DB_PASSWORD')
-    
-    return get_parameter_from_ssm("USER_DB_PASSWORD")
+    return get_config_value("USER_DB_PASSWORD")
 
 def get_jwt_secret_key() -> str:
-    if env_file == '.env.development':
-        return os.getenv('USER_JWT_SECRET')
-    
-    return get_parameter_from_ssm("USER_JWT_SECRET")
+    return get_config_value("USER_JWT_SECRET")

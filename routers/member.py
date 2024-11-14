@@ -57,7 +57,7 @@ async def sign_in(data: SignIn, response_model=SignInResponse, session = Depends
     return SignInResponse(
         message = "로그인에 성공했습니다.", 
         user_id = member["user_id"], 
-        access_token = create_jwt_token(data.type, member.user_id, member.id)
+        access_token = create_jwt_token(member.user_id)
     )
 
 # 정보조회
