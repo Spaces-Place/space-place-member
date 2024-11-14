@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PYTHON_VERSION: 3.12
+  PYTHON_VERSION: 3.12.7
   LINTING_TARGET_VERSION: py312
   CURRENT_BRANCH_NAME: ${{ github.ref_name }}
 jobs:
