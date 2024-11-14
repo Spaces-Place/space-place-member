@@ -9,3 +9,5 @@ CREATE TABLE IF NOT EXISTS Member (
     type ENUM('vendor', 'consumer'),
     create_date DATETIME
 );
+
+CREATE INDEX idx_user_id ON Member (user_id);
