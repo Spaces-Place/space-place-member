@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS spaceplaceDB;
+USE spaceplaceDB;
+
 -- MEMBER 테이블 생성
 CREATE TABLE IF NOT EXISTS Member (
     id INT PRIMARY KEY,
@@ -10,4 +13,4 @@ CREATE TABLE IF NOT EXISTS Member (
     create_date DATETIME
 );
 
-CREATE INDEX idx_user_id ON Member (user_id);
+CREATE INDEX IF NOT EXISTS idx_user_id ON space (user_id);
