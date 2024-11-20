@@ -8,13 +8,13 @@ on:
 env:
   PYTHON_VERSION: 3.12.7
   LINTING_TARGET_VERSION: py312
-  CURRENT_BRANCH_NAME: ${{ github.ref_name }}
+
 jobs:
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
     outputs:
-      linting_done: ${{ steps.output_linting_done.outputs.linting_done }}
+      linting_done: ${{ steps.set_output.outputs.linting_done }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -24,7 +24,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           if [[ $(git status --porcelain) ]]; then
             git checkout -b lint-fix-run-${{ github.run_id }}
             git add ./
@@ -35,9 +35,12 @@ jobs:
             echo "false" > linting_done.txt
 
       - name: Set output for linting_done
-        id: output_linting_done
+        id: set_output
         run: |
-          echo "linting_done=$(cat linting_done.txt)" >> $GITHUB_ENV
+          linting_done=$(cat linting_done.txt)
+          echo "linting_done=${linting_done}" >> $GITHUB_ENV
+        env:
+          linting_done: $(cat linting_done.txt)
 
   build_and_push:
     name: Build and Push Docker Image
