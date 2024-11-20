@@ -14,7 +14,7 @@ jobs:
     name: Lint Code
     runs-on: ubuntu-latest
     outputs:
-      linting_done: ${{ steps.set_output.outputs.linting_done }}
+      output1: ${{ steps.set_output.outputs.linting_done }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -39,7 +39,8 @@ jobs:
         id: set_output
         run: |
           linting_done=$(cat linting_done.txt)
-          echo "linting_done=${linting_done}" >> $GITHUB_ENV
+          echo $linting_done
+          echo "linting_done=${linting_done}" >> $GITHUB_OUTPUT
         env:
           linting_done: $(cat linting_done.txt)
 
