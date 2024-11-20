@@ -39,11 +39,10 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           if [[ $(git status --porcelain) ]]; then
-            git checkout -b "${CURRENT_BRANCH_NAME}-linted"
+            git checkout -b lint-fix-run-${{ github.run_id }}
             git add ./
             git commit -m "[Linted] Code is Linted"
-            git pull
-            git push -u origin "${CURRENT_BRANCH_NAME}-linted"
+            git push -u origin "${CURRENT_BRANCH_NAME}"
             echo "true" > linting_done.txt
           else
             echo "false" > linting_done.txt
