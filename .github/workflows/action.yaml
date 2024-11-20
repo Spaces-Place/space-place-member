@@ -33,6 +33,7 @@ jobs:
             echo "true" >> linting_done.txt
           else
             echo "false" >> linting_done.txt
+          fi
 
       - name: Set output for linting_done
         id: set_output
