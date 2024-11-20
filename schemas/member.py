@@ -1,4 +1,3 @@
-
 from pydantic import Field, EmailStr
 from enums.member_type import MemberType
 from schemas.common import BaseResponse
