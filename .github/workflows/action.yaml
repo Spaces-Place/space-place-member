@@ -42,7 +42,7 @@ jobs:
             git checkout -b lint-fix-run-${{ github.run_id }}
             git add ./
             git commit -m "[Linted] Code is Linted"
-            git push -u origin "${CURRENT_BRANCH_NAME}"
+            git push -u origin lint-fix-run-${{ github.run_id }}
             echo "true" > linting_done.txt
           else
             echo "false" > linting_done.txt
