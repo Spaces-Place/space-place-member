@@ -1,16 +1,11 @@
-CREATE DATABASE IF NOT EXISTS spaceplaceDB;
-USE spaceplaceDB;
-
--- MEMBER 테이블 생성
-CREATE TABLE IF NOT EXISTS Member (
-    id INT PRIMARY KEY,
-    user_id VARCHAR(50) NOT NULL,
+CREATE TABLE IF NOT EXISTS member (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100),
     phone VARCHAR(20),
     type ENUM('vendor', 'consumer'),
-    create_date DATETIME
+    create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_user_id ON space (user_id);

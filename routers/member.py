@@ -42,7 +42,7 @@ async def sign_new_member(data: SignUp, session = Depends(get_session)) -> dict:
 
 # 로그인
 @member_router.post("/sign-in", response_model=SignInResponse, summary="사용자 로그인")
-async def sign_in(data: SignIn, response_model=SignInResponse, session = Depends(get_session))-> dict:
+async def sign_in(data: SignIn, session = Depends(get_session))-> dict:
     statement = select(Member).where(Member.user_id == data.user_id)
     result = session.execute(statement)
     member = result.scalars().first()
@@ -56,13 +56,13 @@ async def sign_in(data: SignIn, response_model=SignInResponse, session = Depends
     
     return SignInResponse(
         message = "로그인에 성공했습니다.", 
-        user_id = member["user_id"], 
+        user_id = member.user_id, 
         access_token = create_jwt_token(member.user_id)
     )
 
 # 정보조회
 @member_router.get("/{user_id}", response_model=MemberResponse, summary="사용자 정보 조회")
-async def sign_in(user_id: str, session = Depends(get_session), token_info=Depends(userAuthenticate))-> dict:
+async def sign_in(user_id: str, session = Depends(get_session), token_info=Depends(userAuthenticate)):
     statement = select(Member).where(Member.user_id == user_id)
     result = session.execute(statement)
     member = result.scalars().first()
@@ -73,22 +73,11 @@ async def sign_in(user_id: str, session = Depends(get_session), token_info=Depen
     if token_info["user_id"] != user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="자기 자신의 정보만 확인 가능합니다.")
 
-    # 실제 유저 정보
-    member = Member(
+    return MemberResponse(
+        message = "유저 조회 완료.", 
         user_id = member.user_id,
         name = member.name,
         email = member.email,
         phone = member.phone,
         type = member.type
-    )
-
-    return MemberResponse(
-        message = "유저 조회 완료.", 
-        user = {
-                "user_id": member.user_id,
-                "name": member.name,
-                "email": member.email,
-                "phone": member.phone,
-                "type": member.type
-        } 
     )

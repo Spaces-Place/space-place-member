@@ -16,5 +16,5 @@ class SignIn(BaseModel):
     type: MemberType = Field(description="사용자 타입")
 
 class SignInResponse(BaseResponse):
-    user: str = Field(description="유저 아이디")
+    user_id: str = Field(description="유저 아이디")
     access_token: str = Field(description="엑세스 토큰")

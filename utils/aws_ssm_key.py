@@ -51,6 +51,9 @@ def get_config_value(name: str) -> str:
         return value
     return get_parameter_from_ssm(name)
 
+def get_user_db_username() -> str:
+    return get_config_value("USER_DB_USERNAME")
+
 def get_user_db_name() -> str:
     return get_config_value("USER_DB_NAME")
 

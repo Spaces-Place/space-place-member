@@ -10,6 +10,5 @@ async def userAuthenticate(token: str = Depends(user_oauth2_scheme)):
     
     payload = verify_jwt_token(token)
     return {
-        "id": payload["id"],
         "user_id": payload["user_id"]
     }
