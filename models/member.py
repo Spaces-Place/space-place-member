@@ -6,7 +6,7 @@ from sqlmodel import Field, SQLModel
 from enums.member_type import MemberType
 
 
-class Member(SQLModel):
+class Member(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     user_id: str = Field(unique=True)
     name: str
