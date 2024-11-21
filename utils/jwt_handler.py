@@ -2,10 +2,11 @@ from time import time
 from fastapi import HTTPException, status
 from jose import jwt
 
-from utils.aws_ssm_key import get_jwt_secret_key
+from utils.aws_config import get_aws_config
 
-secret = get_jwt_secret_key()
 
+aws_config = get_aws_config()
+secret = aws_config.get_jwt_secret()
 
 # JWT 토큰 생성
 def create_jwt_token(user_id: str) -> str:

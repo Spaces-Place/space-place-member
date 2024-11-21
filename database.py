@@ -1,19 +1,22 @@
-from typing import Optional
-from sqlmodel import SQLModel, Session, create_engine, text
-from utils.aws_ssm_key import get_user_db_name, get_user_db_host, get_user_db_password
+from sqlmodel import Session, create_engine, text
+from utils.aws_config import get_aws_config
 
-password = get_user_db_password()
-user_db_host = get_user_db_host()
-user_db_name = get_user_db_name()
+
+aws_config = get_aws_config()
+db_config = aws_config.get_db_config()
+
+user_db_host = db_config['host']
+user_db_name = db_config['db_name']
+user_db_username = db_config['username']
+user_db_password = db_config['password']
+
 engine_url = create_engine(
-    f"mysql+mysqlconnector://root:{password}@{user_db_host}:3306/{user_db_name}",
+    f"mysql+mysqlconnector://{user_db_username}:{user_db_password}@{user_db_host}:3306/{user_db_name}",
     echo=True,
 )
 
 
 def conn():
-    # SQLModel.metadata.create_all(engine_url)
-
     import os
 
     sql_file_path = os.path.join(os.path.dirname(__file__), "setup.sql")
@@ -22,7 +25,6 @@ def conn():
         sql_script = file.read()
         session.execute(text(sql_script))
     session.commit()
-    pass
 
 
 def get_session():
