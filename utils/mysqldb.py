@@ -1,6 +1,7 @@
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -43,14 +44,14 @@ class MySQLDatabase:
 
             await self.create_tables()  
 
-    async def execute_setup_sql(self):
+    async def create_tables(self):
         async with self.session() as session:
             with open('setup.sql', 'r', encoding='utf-8') as file:
                 sql_commands = file.read().split(';')
                 
-                for command in sql_commands:
-                    if command.strip():
-                        await session.execute(command)
+            for command in sql_commands:
+                if command.strip():
+                    await session.execute(text(command.strip()))
     
     def _build_connection_string(self) -> str:
         host = self._db_config.host
