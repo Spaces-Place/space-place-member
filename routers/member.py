@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from database import get_session
 from models.member import Member
 from schemas.common import BaseResponse
 from schemas.sign import SignUp, SignIn, SignInResponse
@@ -8,6 +7,7 @@ from utils.authenticate import userAuthenticate
 from utils.hash_password import HashPassword
 from sqlmodel import select
 from utils.jwt_handler import create_jwt_token
+from utils.mysqldb import get_mysql_session
 
 
 member_router = APIRouter(tags=["사용자"])
@@ -22,13 +22,10 @@ hash_password = HashPassword()
     status_code=status.HTTP_201_CREATED,
     summary="사용자 회원가입",
 )
-async def sign_new_member(data: SignUp, session=Depends(get_session)) -> dict:
-    # query = text("SELECT * FROM member WHERE user_id = :user_id")
-    # session.execute(query, {"user_id": data.user_id})
-    # session.commit()
-
+async def sign_new_member(data: SignUp, session=Depends(get_mysql_session)) -> dict:
     statement = select(Member).where(Member.user_id == data.user_id)
-    user = session.exec(statement).first()
+    result = await session.execute(statement)
+    user = result.scalar_one_or_none()
     if user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="동일한 사용자가 존재합니다."
@@ -43,16 +40,16 @@ async def sign_new_member(data: SignUp, session=Depends(get_session)) -> dict:
         type=data.type,
     )
     session.add(new_member)
-    session.commit()
+    await session.commit()
     return BaseResponse(message="정상적으로 가입되었습니다.")
 
 
 # 로그인
 @member_router.post("/sign-in", response_model=SignInResponse, summary="사용자 로그인")
-async def sign_in(data: SignIn, session=Depends(get_session)) -> dict:
+async def sign_in(data: SignIn, session=Depends(get_mysql_session)) -> dict:
     statement = select(Member).where(Member.user_id == data.user_id)
-    result = session.execute(statement)
-    member = result.scalars().first()
+    result = await session.execute(statement)
+    member = result.scalar_one_or_none()
 
     if not member:
         raise HTTPException(
@@ -65,8 +62,6 @@ async def sign_in(data: SignIn, session=Depends(get_session)) -> dict:
             detail="패스워드가 일치하지 않습니다.",
         )
 
-    delattr(member, "password")
-
     return SignInResponse(
         message="로그인에 성공했습니다.",
         user_id=member.user_id,
@@ -78,12 +73,12 @@ async def sign_in(data: SignIn, session=Depends(get_session)) -> dict:
 @member_router.get(
     "/{user_id}", response_model=MemberResponse, summary="사용자 정보 조회"
 )
-async def sign_in(
-    user_id: str, session=Depends(get_session), token_info=Depends(userAuthenticate)
+async def get_user(
+    user_id: str, session=Depends(get_mysql_session), token_info=Depends(userAuthenticate)
 ):
     statement = select(Member).where(Member.user_id == user_id)
-    result = session.execute(statement)
-    member = result.scalars().first()
+    result = await session.execute(statement)
+    member = result.scalar_one_or_none()
 
     if not member:
         raise HTTPException(
