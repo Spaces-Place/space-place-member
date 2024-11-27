@@ -26,7 +26,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="멤버 API", version="ver.1")
 
+health_router = APIRouter()
 app.include_router(member_router, prefix="/api/v1/members")
+app.include_router(health_router)
+
+@health_router.get("/", status_code=status.HTTP_200_OK)
+async def root_check() -> None:
+    return None  # 이 엔드포인트는 200 OK 상태를 반환하지만 본문은 반환하지 않습니다.
+
+@health_router.get("/health", status_code=status.HTTP_200_OK)
+async def health_check() -> dict:
+    return {"status": "ok"}  # {"status": "ok"}로 200 OK 응답을 반환합니다.
 
 app.add_middleware(
     CORSMiddleware,
