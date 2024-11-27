@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
+
 
 from routers.member import member_router
 from utils.database_config import DatabaseConfig
