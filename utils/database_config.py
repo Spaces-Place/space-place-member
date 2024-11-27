@@ -26,6 +26,7 @@ class DatabaseConfig:
 
     def create_database(self) -> MySQLDatabase:
         db_config = self.get_db_config()
+        print(f"db_config: {db_config}")
         return MySQLDatabase(db_config)
 
     def get_db_config(self) -> DBConfig:

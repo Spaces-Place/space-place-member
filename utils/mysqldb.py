@@ -58,7 +58,7 @@ class MySQLDatabase:
         dbname = self._db_config.dbname
         username = self._db_config.username
         password = self._db_config.password
-        return f"mysql+aiomysql://{username}:{password}@{host}:3306/{dbname}"
+        return f"mysql+aiomysql://{username}:{password}@{host}/{dbname}"
     
     @asynccontextmanager
     async def session(self) -> AsyncGenerator[AsyncSession, None]:
