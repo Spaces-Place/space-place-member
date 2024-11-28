@@ -40,14 +40,17 @@ jobs:
 
       - name: Push to lint branch
         id: check_diff
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}-${{ github.run_id }}-linted
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           if [[ $(git status --porcelain) ]]; then
-            git checkout -b ${{ github.head_ref }}-${{ github.run_id }}-linted
+            git checkout -b ${BRANCH_NAME}
             git add ./
             git commit -m "[Linted] Code is Linted"
+            git push -u origin ${BRANCH_NAME}
           fi
 
   build_and_push:
