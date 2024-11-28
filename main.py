@@ -44,6 +44,7 @@ async def health_check() -> dict:
 
 @app.get("/", status_code=status.HTTP_200_OK)
 async def root_check() -> dict:
+    print("/ GET called")
     return {"message": "Welcome to the API!"}
 
 
