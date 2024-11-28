@@ -14,9 +14,13 @@ from utils.mysqldb import MySQLDatabase
 async def lifespan(app: FastAPI):
     print("lifespan started")
     # 애플리케이션 시작될 때 실행할 코드
-    env_type = '.env.development' if os.getenv('APP_ENV') == 'development' else '.env.production'
+    env_type = (
+        ".env.development"
+        if os.getenv("APP_ENV") == "development"
+        else ".env.production"
+    )
     load_dotenv(env_type)
-    
+
     database = DatabaseConfig().create_database()
     await database.initialize()
 
@@ -32,13 +36,16 @@ health_router = APIRouter()
 app.include_router(member_router, prefix="/api/v1/members")
 app.include_router(health_router)
 
+
 @health_router.get("/health", status_code=status.HTTP_200_OK)
 async def health_check() -> dict:
     return {"status": "ok"}  # {"status": "ok"}로 200 OK 응답을 반환합니다.
 
+
 @app.get("/", status_code=status.HTTP_200_OK)
 async def root_check() -> dict:
     return {"message": "Welcome to the API!"}
+
 
 app.add_middleware(
     CORSMiddleware,
