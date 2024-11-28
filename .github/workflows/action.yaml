@@ -115,7 +115,7 @@ jobs:
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.SPACE_PLACE_TOKEN }}
         run: |
-          cd target-repo
+          cd repo
 
           # Commit changes
           git add members/base/deployment.yaml
