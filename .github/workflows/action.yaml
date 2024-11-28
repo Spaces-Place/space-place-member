@@ -18,7 +18,7 @@ env:
 
 jobs:
   lint:
-    if: ${{ startsWith(github.base_ref, 'feature') && !endsWith(github.base_ref, 'linted') && github.event_name == 'pull_request'}}
+    if: ${{ startsWith(github.head_ref, 'feature') && !endsWith(github.head_ref, 'linted') && github.event_name == 'pull_request'}}
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
