@@ -39,6 +39,7 @@ app.include_router(health_router)
 
 @health_router.get("/health", status_code=status.HTTP_200_OK)
 async def health_check() -> dict:
+    print("/health GET called")
     return {"status": "ok"}  # {"status": "ok"}로 200 OK 응답을 반환합니다.
 
 
