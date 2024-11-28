@@ -94,16 +94,18 @@ jobs:
 
       - name: Clone the target repository
         run: |
-          git clone https://github.com/Spaces-Place/space-place-helm.git target-repo
+          git clone https://github.com/Spaces-Place/space-place-helm.git repo
+          cd repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Update image tag in deployment.yaml
         run: |
+          cd repo
           COMMIT_ID="${{ github.sha }}"
 
           # Update the image tag in the file
-          sed -i "s|image:.*|image: spaces-place/members:$COMMIT_ID|" $FILE_PATH
+          sed -i "s|image:.*|image: spaces-place/members:$COMMIT_ID|" ${FILE_PATH}
 
           # Confirm the change
           echo "Updated $FILE_PATH with image tag $COMMIT_ID"
