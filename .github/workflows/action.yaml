@@ -115,10 +115,12 @@ jobs:
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.SPACE_PLACE_TOKEN }}
         run: |
+          ls -al
           cd repo
+          ls -al
 
           # Commit changes
-          git add members/base/deployment.yaml
+          git add ${FILE_PATH}
           git commit -m "Update image tag to $COMMIT_ID"
 
           # Push changes using the PAT
