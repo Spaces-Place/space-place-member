@@ -74,7 +74,9 @@ async def sign_in(data: SignIn, session=Depends(get_mysql_session)) -> dict:
     "/{user_id}", response_model=MemberResponse, summary="사용자 정보 조회"
 )
 async def get_user(
-    user_id: str, session=Depends(get_mysql_session), token_info=Depends(userAuthenticate)
+    user_id: str,
+    session=Depends(get_mysql_session),
+    token_info=Depends(userAuthenticate),
 ):
     statement = select(Member).where(Member.user_id == user_id)
     result = await session.execute(statement)
