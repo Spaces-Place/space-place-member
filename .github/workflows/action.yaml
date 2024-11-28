@@ -89,10 +89,8 @@ jobs:
     env:
       FILE_PATH: members/${{ github.ref_name }}/deployment.yaml
       IMAGE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+      COMMIT_ID: ${{ github.sha }}
     steps:
-    - name: Checkout this repository
-      uses: actions/checkout@v4.2.2
-
     - name: Clone the target repository
       run: |
         git clone https://github.com/Spaces-Place/space-place-helm.git repo
@@ -103,26 +101,14 @@ jobs:
     - name: Update image tag in deployment.yaml
       run: |
         cd repo
-        COMMIT_ID="${{ github.sha }}"
-
-        # Update the image tag in the file
         sed -i "s|image:.*|image: ${IMAGE_FULL_NAME}|" ${FILE_PATH}
-
-        # Confirm the change
-        echo "Updated ${FILE_PATH} with image tag ${COMMIT_ID}"
-        cat ${FILE_PATH}
 
     - name: Commit and push changes to the target repository
       env:
         PERSONAL_ACCESS_TOKEN: ${{ secrets.SPACE_PLACE_TOKEN }}
       run: |
-        ls -al
         cd repo
-        ls -al
 
-        # Commit changes
         git add ${FILE_PATH}
         git commit -m "Update image tag to ${COMMIT_ID}"
-
-        # Push changes using the PAT
         git push https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/Spaces-Place/space-place-helm.git main
