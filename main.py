@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, APIRouter, status
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
 
 
 from routers.member import member_router
@@ -36,14 +38,12 @@ app.include_router(member_router, prefix="/api/v1/members")
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def health_check() -> dict:
-    print("/health GET called")
-    return {"status": "ok"}  # {"status": "ok"}로 200 OK 응답을 반환합니다.
+    return {"status" : "ok"}
 
+FastAPIInstrumentor.instrument_app(app)
 
-@app.get("/", status_code=status.HTTP_200_OK)
-async def root_check() -> dict:
-    print("/ GET called")
-    return {"message": "Welcome to the API!"}
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)
 
 
 app.add_middleware(

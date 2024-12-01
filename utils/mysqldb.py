@@ -32,8 +32,8 @@ class MySQLDatabase:
                 connection_string,
                 echo=False,
                 pool_pre_ping=True,
-                pool_size=5,
-                max_overflow=10,
+                pool_size=10,
+                max_overflow=20
             )
             self._session_maker = sessionmaker(
                 self._engine, class_=AsyncSession, expire_on_commit=False
