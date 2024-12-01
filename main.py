@@ -34,6 +34,7 @@ app = FastAPI(lifespan=lifespan, title="멤버 API", version="ver.1")
 
 app.include_router(member_router, prefix="/api/v1/members")
 
+
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def health_check() -> dict:
     print("/health GET called")
