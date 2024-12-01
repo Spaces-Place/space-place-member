@@ -32,12 +32,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="멤버 API", version="ver.1")
 
-health_router = APIRouter()
 app.include_router(member_router, prefix="/api/v1/members")
-app.include_router(health_router)
 
-
-@health_router.get("/health", status_code=status.HTTP_200_OK)
+@app.get("/health", status_code=status.HTTP_200_OK)
 async def health_check() -> dict:
     print("/health GET called")
     return {"status": "ok"}  # {"status": "ok"}로 200 OK 응답을 반환합니다.
