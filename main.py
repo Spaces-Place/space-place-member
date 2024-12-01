@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
 
+
 from routers.member import member_router
 from utils.database_config import DatabaseConfig
 from utils.mysqldb import MySQLDatabase
@@ -13,10 +14,15 @@ from utils.mysqldb import MySQLDatabase
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("lifespan started")
     # 애플리케이션 시작될 때 실행할 코드
-    env_type = '.env.development' if os.getenv('APP_ENV') == 'development' else '.env.production'
+    env_type = (
+        ".env.development"
+        if os.getenv("APP_ENV") == "development"
+        else ".env.production"
+    )
     load_dotenv(env_type)
-    
+
     database = DatabaseConfig().create_database()
     await database.initialize()
 
@@ -38,6 +44,7 @@ FastAPIInstrumentor.instrument_app(app)
 
 instrumentator = Instrumentator()
 instrumentator.instrument(app).expose(app)
+
 
 app.add_middleware(
     CORSMiddleware,
