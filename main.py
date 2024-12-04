@@ -16,8 +16,9 @@ from utils.mysqldb import MySQLDatabase
 log_dir = Path("/var/log/spaceplace/member")
 log_dir.mkdir(parents=True, exist_ok=True)
 
-logging.config.fileConfig('log.conf', encoding="utf-8")
+logging.config.fileConfig("log.conf", encoding="utf-8")
 logger = logging.getLogger()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,9 +44,11 @@ app = FastAPI(lifespan=lifespan, title="멤버 API", version="ver.1")
 
 app.include_router(member_router, prefix="/api/v1/members")
 
+
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def health_check() -> dict:
-    return {"status" : "ok"}
+    return {"status": "ok"}
+
 
 FastAPIInstrumentor.instrument_app(app)
 
