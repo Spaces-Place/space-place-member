@@ -1,16 +1,23 @@
 from contextlib import asynccontextmanager
+import logging
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
 
-
 from routers.member import member_router
 from utils.database_config import DatabaseConfig
 from utils.mysqldb import MySQLDatabase
 
+
+log_dir = Path("/var/log/spaceplace/member")
+log_dir.mkdir(parents=True, exist_ok=True)
+
+logging.config.fileConfig('log.conf', encoding="utf-8")
+logger = logging.getLogger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
