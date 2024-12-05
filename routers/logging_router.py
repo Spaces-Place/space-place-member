@@ -10,8 +10,8 @@ from utils.logger import Logger
 class LoggingAPIRoute(APIRoute):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._logger = Logger.setup_logger() 
-        
+        self._logger = Logger.setup_logger()
+
     def get_route_handler(self) -> Callable:
         original_route_handler = super().get_route_handler()
 
@@ -26,9 +26,9 @@ class LoggingAPIRoute(APIRoute):
     @staticmethod
     def _has_json_body(request: Request) -> bool:
         if (
-            request.method in ("POST", "PUT", "PATCH") and 
-            request.headers.get("content-type") == "application/json"
-				):
+            request.method in ("POST", "PUT", "PATCH")
+            and request.headers.get("content-type") == "application/json"
+        ):
             return True
         return False
 
@@ -44,16 +44,20 @@ class LoggingAPIRoute(APIRoute):
             request_body = await request.body()
             extra["body"] = request_body.decode("UTF-8")
 
-        self._logger.info(f"요청 URL: {extra['httpMethod']} {extra['url']}", extra=extra)
+        self._logger.info(
+            f"요청 URL: {extra['httpMethod']} {extra['url']}", extra=extra
+        )
         self._logger.info(f"쿼리 파라미터: {extra['queryParams']}", extra=extra)
         self._logger.info(f"요청 데이터: {extra.get('body', '')}", extra=extra)
 
     @staticmethod
-    def _response_log(request: Request, response: Response, logger: Logger) -> Dict[str, str]:
+    def _response_log(
+        request: Request, response: Response, logger: Logger
+    ) -> Dict[str, str]:
         extra: Dict[str, str] = {
             "httpMethod": request.method,
             "url": request.url.path,
-            "body": response.body.decode("UTF-8")
+            "body": response.body.decode("UTF-8"),
         }
-		
+
         logger.info(f"응답 데이터: {extra['body']}", extra=extra)
