@@ -1,11 +1,11 @@
 
 from contextlib import asynccontextmanager
-import logging
 from typing import AsyncGenerator
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+from utils.logger import Logger
 from utils.type.db_config_type import DBConfig
 
 
@@ -13,7 +13,6 @@ class MySQLDatabase:
     """
     DB 연결 및 세션 관리
     """
-    _logger = logging.getLogger("")
     _instance = None
     _engine = None
     _session_maker = None
@@ -21,6 +20,7 @@ class MySQLDatabase:
     def __new__(cls, *args):
         if cls._instance is None:
             cls._instance = super(MySQLDatabase, cls).__new__(cls)
+            cls._logger = Logger.setup_logger()
         return cls._instance
     
     def __init__(self, db_config: DBConfig = None):
