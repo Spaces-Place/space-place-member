@@ -20,6 +20,7 @@ class DatabaseConfig:
     """
     DB 환경에 따른 설정관리
     """
+
     def __init__(self):
         self._env_config = get_env_config()
         self._parameter_store = ParameterStore()

@@ -1,4 +1,3 @@
-
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from sqlalchemy import text
@@ -13,6 +12,7 @@ class MySQLDatabase:
     """
     DB 연결 및 세션 관리
     """
+
     _instance = None
     _engine = None
     _session_maker = None
@@ -22,10 +22,10 @@ class MySQLDatabase:
             cls._instance = super(MySQLDatabase, cls).__new__(cls)
             cls._logger = Logger.setup_logger()
         return cls._instance
-    
+
     def __init__(self, db_config: DBConfig = None):
-        if not hasattr(self, '_db_config'):
-            self._logger.info('데이터 베이스가 연동 되었습니다.')
+        if not hasattr(self, "_db_config"):
+            self._logger.info("데이터 베이스가 연동 되었습니다.")
             self._db_config = db_config
 
     async def initialize(self):
@@ -36,39 +36,37 @@ class MySQLDatabase:
                 echo=False,
                 pool_pre_ping=True,
                 pool_size=10,
-                max_overflow=20
+                max_overflow=20,
             )
             self._session_maker = sessionmaker(
-                self._engine,
-                class_=AsyncSession,
-                expire_on_commit=False
+                self._engine, class_=AsyncSession, expire_on_commit=False
             )
 
-            await self.create_tables()  
+            await self.create_tables()
 
     async def create_tables(self):
         async with self.session() as session:
-            with open('setup.sql', 'r', encoding='utf-8') as file:
-                sql_commands = file.read().split(';')
-                
+            with open("setup.sql", "r", encoding="utf-8") as file:
+                sql_commands = file.read().split(";")
+
             for command in sql_commands:
                 if command.strip():
                     await session.execute(text(command.strip()))
 
-            self._logger.info('테이블 준비 완료')
-    
+            self._logger.info("테이블 준비 완료")
+
     def _build_connection_string(self) -> str:
         host = self._db_config.host
         dbname = self._db_config.dbname
         username = self._db_config.username
         password = self._db_config.password
         return f"mysql+aiomysql://{username}:{password}@{host}/{dbname}"
-    
+
     @asynccontextmanager
     async def session(self) -> AsyncGenerator[AsyncSession, None]:
         if not self._session_maker:
             await self.initialize()
-            
+
         async with self._session_maker() as session:
             try:
                 yield session
@@ -82,11 +80,12 @@ class MySQLDatabase:
             await self._engine.dispose()
             self._engine = None
             self._session_maker = None
-            self._logger.info('DB 커넥션 해제')
+            self._logger.info("DB 커넥션 해제")
+
 
 async def get_mysql_session() -> AsyncGenerator[AsyncSession, None]:
     from utils.database_config import DatabaseConfig
-    
+
     db = MySQLDatabase(DatabaseConfig().get_db_config())
     async with db.session() as session:
         yield session
