@@ -1,18 +1,25 @@
 from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, APIRouter, status
+from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
+# from opentelemetry import trace
+# from opentelemetry.sdk.trace import TracerProvider
+# from opentelemetry.sdk.trace.export import BatchSpanProcessor
+# from opentelemetry.sdk.resources import Resource
+# from opentelemetry.semconv.resource import ResourceAttributes
+# from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
 from routers.member import member_router
 from utils.database_config import DatabaseConfig
-from utils.mysqldb import MySQLDatabase
+from utils.logger import Logger
+from utils.logging_middleware import LoggingMiddleware
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("lifespan started")
     # 애플리케이션 시작될 때 실행할 코드
     env_type = (
         ".env.development"
@@ -31,23 +38,30 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan, title="멤버 API", version="ver.1")
+app.add_middleware(LoggingMiddleware)
 
-health_router = APIRouter()
 app.include_router(member_router, prefix="/api/v1/members")
-app.include_router(health_router)
 
+@app.get("/health", status_code=status.HTTP_200_OK)
+async def health_check(logger: Logger = Depends(Logger.setup_logger)) -> dict:
+    logger.info("health check")
+    return {"status" : "ok"}
 
-@health_router.get("/health", status_code=status.HTTP_200_OK)
-async def health_check() -> dict:
-    print("/health GET called")
-    return {"status": "ok"}  # {"status": "ok"}로 200 OK 응답을 반환합니다.
+# """Trace"""
+# # OpenTelemetry
+# resource = Resource.create({ResourceAttributes.SERVICE_NAME: "member-service"})
+# trace_provider = TracerProvider(resource=resource)
 
+# # 템포에 데이터 전송을 위한 OLTP span Exporter
+# tempo_exporter = OTLPSpanExporter(endpoint="http://localhost:4318/v1/traces")
+# span_processor = BatchSpanProcessor(tempo_exporter)
+# trace_provider.add_span_processor(span_processor) # Span 프로세서 추가
 
-@app.get("/", status_code=status.HTTP_200_OK)
-async def root_check() -> dict:
-    print("/ GET called")
-    return {"message": "Welcome to the API!"}
+# trace.set_tracer_provider(trace_provider)
 
+FastAPIInstrumentor.instrument_app(app, excluded_urls="client/.*/health")
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app) # 메트릭(/metrics) 노출
 
 app.add_middleware(
     CORSMiddleware,
