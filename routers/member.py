@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from models.member import Member
-from routers.logging_router import LoggingAPIRoute
 from schemas.common import BaseResponse
 from schemas.sign import SignUp, SignIn, SignInResponse
 from schemas.member import MemberResponse
@@ -11,7 +10,7 @@ from utils.jwt_handler import create_jwt_token
 from utils.mysqldb import get_mysql_session
 
 
-member_router = APIRouter(tags=["사용자"], route_class=LoggingAPIRoute)
+member_router = APIRouter(tags=["사용자"])
 
 hash_password = HashPassword()
 
