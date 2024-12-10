@@ -53,18 +53,22 @@ async def sign_in(data: SignIn, session=Depends(get_mysql_session), logger: Logg
     statement = select(Member).where(Member.user_id == data.user_id)
     result = await session.execute(statement)
     member = result.scalar_one_or_none()
-    logger.info(f"{time.time()-start} sec")
+    logger.info(f"DB요청 시간 : {time.time()-start} sec")
     
     if not member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="일치하는 사용자가 존재하지 않습니다.",
         )
-    if not hash_password.verify_password(data.password, member.password):
+    
+    start = time.time()
+    is_verified_pw=hash_password.verify_password(data.password, member.password)
+    if not is_verified_pw:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="패스워드가 일치하지 않습니다.",
         )
+    logger.info(f"토큰 검증 시간 : {time.time()-start} sec")
 
     return SignInResponse(
         message="로그인에 성공했습니다.",
