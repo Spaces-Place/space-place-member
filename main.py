@@ -5,6 +5,7 @@ from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
+
 # from opentelemetry import trace
 # from opentelemetry.sdk.trace import TracerProvider
 # from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -42,10 +43,12 @@ app.add_middleware(LoggingMiddleware)
 
 app.include_router(member_router, prefix="/api/v1/members")
 
+
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def health_check(logger: Logger = Depends(Logger.setup_logger)) -> dict:
     logger.info("health check")
-    return {"status" : "ok"}
+    return {"status": "ok"}
+
 
 # """Trace"""
 # # OpenTelemetry
@@ -61,7 +64,7 @@ async def health_check(logger: Logger = Depends(Logger.setup_logger)) -> dict:
 
 FastAPIInstrumentor.instrument_app(app, excluded_urls="client/.*/health")
 instrumentator = Instrumentator()
-instrumentator.instrument(app).expose(app) # 메트릭(/metrics) 노출
+instrumentator.instrument(app).expose(app)  # 메트릭(/metrics) 노출
 
 app.add_middleware(
     CORSMiddleware,
