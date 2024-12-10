@@ -68,12 +68,16 @@ async def sign_in(data: SignIn, session=Depends(get_mysql_session), logger: Logg
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="패스워드가 일치하지 않습니다.",
         )
-    logger.info(f"토큰 검증 시간 : {time.time()-start} sec")
+    logger.info(f"해싱 시간 : {time.time()-start} sec")
+
+    start = time.time()
+    access_token=create_jwt_token(member.user_id)
+    logger.info(f"토큰 생성 시간 : {time.time()-start} sec")
 
     return SignInResponse(
         message="로그인에 성공했습니다.",
         user_id=member.user_id,
-        access_token=create_jwt_token(member.user_id),
+        access_token=access_token,
     )
 
 
