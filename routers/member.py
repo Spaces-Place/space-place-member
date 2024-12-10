@@ -1,4 +1,4 @@
-import time
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from models.member import Member
 from schemas.common import BaseResponse
@@ -49,11 +49,9 @@ async def sign_new_member(data: SignUp, session=Depends(get_mysql_session)) -> d
 # 로그인
 @member_router.post("/sign-in", response_model=SignInResponse, summary="사용자 로그인")
 async def sign_in(data: SignIn, session=Depends(get_mysql_session), logger: Logger = Depends(Logger.setup_logger)) -> dict:
-    start = time.time()
     statement = select(Member).where(Member.user_id == data.user_id)
     result = await session.execute(statement)
-    member = result.scalar_one_or_none()
-    logger.info(f"DB요청 시간 : {time.time()-start} sec")
+    member = result.first()[0] # 튜플 형태임
     
     if not member:
         raise HTTPException(
@@ -61,18 +59,14 @@ async def sign_in(data: SignIn, session=Depends(get_mysql_session), logger: Logg
             detail="일치하는 사용자가 존재하지 않습니다.",
         )
     
-    start = time.time()
-    is_verified_pw=hash_password.verify_password(data.password, member.password)
+    is_verified_pw = await asyncio.to_thread(hash_password.verify_password, data.password, member.password)
+
     if not is_verified_pw:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="패스워드가 일치하지 않습니다.",
         )
-    logger.info(f"해싱 시간 : {time.time()-start} sec")
-
-    start = time.time()
-    access_token=create_jwt_token(member.user_id)
-    logger.info(f"토큰 생성 시간 : {time.time()-start} sec")
+    access_token = await asyncio.to_thread(create_jwt_token, member.user_id)
 
     return SignInResponse(
         message="로그인에 성공했습니다.",
