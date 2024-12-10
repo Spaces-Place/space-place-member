@@ -48,13 +48,17 @@ async def sign_new_member(data: SignUp, session=Depends(get_mysql_session)) -> d
 
 # 로그인
 @member_router.post("/sign-in", response_model=SignInResponse, summary="사용자 로그인")
-async def sign_in(data: SignIn, session=Depends(get_mysql_session), logger: Logger = Depends(Logger.setup_logger)) -> dict:
+async def sign_in(
+    data: SignIn,
+    session=Depends(get_mysql_session),
+    logger: Logger = Depends(Logger.setup_logger),
+) -> dict:
     start = time.time()
     statement = select(Member).where(Member.user_id == data.user_id)
     result = await session.execute(statement)
     member = result.scalar_one_or_none()
     logger.info(f"{time.time()-start} sec")
-    
+
     if not member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
